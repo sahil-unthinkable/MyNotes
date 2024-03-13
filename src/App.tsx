@@ -1,76 +1,89 @@
-import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
-  IonIcon,
-  IonLabel,
+  IonLoading,
+  IonNav,
   IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonTabs,
-  setupIonicReact
-} from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
-import Tab1 from './pages/Tab1';
-import Tab2 from './pages/Tab2';
-import Tab3 from './pages/Tab3';
+  IonSpinner,
+  setupIonicReact,
+} from "@ionic/react";
 
-/* Core CSS required for Ionic components to work properly */
-import '@ionic/react/css/core.css';
+import { JeepSqlite } from "jeep-sqlite/dist/components/jeep-sqlite";
+import sqliteParams from "./db/sqliteParams";
+import noteDataSource from "./db/datasources/noteDataSource";
+import { getCountOfElements } from "./db/utilities";
+import { Note } from "./db/entities/note";
+import Notes from "./pages/notes";
+import { useEffect, useState } from "react";
+import { IonReactRouter } from "@ionic/react-router";
+import { Route } from "react-router";
+import AddEditNote from "./pages/addEditNote";
 
-/* Basic CSS for apps built with Ionic */
-import '@ionic/react/css/normalize.css';
-import '@ionic/react/css/structure.css';
-import '@ionic/react/css/typography.css';
+customElements.define("jeep-sqlite", JeepSqlite);
 
-/* Optional CSS utils that can be commented out */
-import '@ionic/react/css/padding.css';
-import '@ionic/react/css/float-elements.css';
-import '@ionic/react/css/text-alignment.css';
-import '@ionic/react/css/text-transformation.css';
-import '@ionic/react/css/flex-utils.css';
-import '@ionic/react/css/display.css';
+const initializeDataSources = async () => {
+  //check sqlite connections consistency
+  await sqliteParams.connection.checkConnectionsConsistency().catch((e) => {
+    console.log(e);
+    return {};
+  });
 
-/* Theme variables */
-import './theme/variables.css';
+  // Loop through the DataSources
+  for (const mDataSource of [noteDataSource]) {
+    // initialize
+    await mDataSource.dataSource.initialize();
+    if (mDataSource.dataSource.isInitialized) {
+      // run the migrations
+      await mDataSource.dataSource.runMigrations();
+    }
+    if (sqliteParams.platform === "web") {
+      await sqliteParams.connection.saveToStore(mDataSource.dbName);
+    }
+  }
+};
 
 setupIonicReact();
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route exact path="/tab1">
-            <Tab1 />
-          </Route>
-          <Route exact path="/tab2">
-            <Tab2 />
-          </Route>
-          <Route path="/tab3">
-            <Tab3 />
-          </Route>
-          <Route exact path="/">
-            <Redirect to="/tab1" />
-          </Route>
-        </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="tab1" href="/tab1">
-            <IonIcon aria-hidden="true" icon={triangle} />
-            <IonLabel>Tab 1</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
-            <IonIcon aria-hidden="true" icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab3" href="/tab3">
-            <IonIcon aria-hidden="true" icon={square} />
-            <IonLabel>Tab 3</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
-  </IonApp>
-);
+const App: React.FC = () => {
+  const [dbInitialized, setDbInitialized] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      if (sqliteParams.platform !== "web") {
+        await initializeDataSources();
+        setDbInitialized(true);
+      } else {
+        const jeepEl = document.createElement("jeep-sqlite");
+        document.body.appendChild(jeepEl);
+        customElements
+          .whenDefined("jeep-sqlite")
+          .then(async () => {
+            await sqliteParams.connection.initWebStore();
+            await initializeDataSources();
+          })
+          .catch((err) => {
+            console.log(`Error: ${err}`);
+            throw new Error(`Error: ${err}`);
+          })
+          .finally(() => {
+            setDbInitialized(true);
+          });
+      }
+    })();
+  }, []);
+
+  if (!dbInitialized) {
+    return <IonSpinner name="dots" />;
+  }
+
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <Route exact path="/" component={Notes} />
+        <Route path="/note" component={AddEditNote} />
+        <Route path="/note/:id" component={AddEditNote} />
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;
