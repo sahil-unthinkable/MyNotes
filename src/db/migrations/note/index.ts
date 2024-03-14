@@ -5,7 +5,7 @@ export class InitalNoteMigration1710321969208 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TABLE "note" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "content" varchar NOT NULL)`
+      `CREATE TABLE IF NOT EXISTS "note" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "content" varchar NOT NULL)`
     );
   }
 

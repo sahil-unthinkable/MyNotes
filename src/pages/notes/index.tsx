@@ -3,17 +3,13 @@ import {
   IonButton,
   IonHeader,
   IonContent,
-  IonNavLink,
   IonToolbar,
   IonTitle,
-  IonRouterLink,
   IonList,
   IonItem,
   IonLabel,
   IonPage,
 } from "@ionic/react";
-
-import AddEditNote from "../addEditNote";
 import { getNotes } from "../../db/utilities";
 import { Note } from "../../db/entities/note";
 
@@ -24,12 +20,9 @@ function Notes(props: Props) {
   useEffect(() => {
     (async () => {
       const notesData = await getNotes();
-      console.log("Get Notes");
       setNotes(notesData);
     })();
   }, []);
-
-  console.log(notes);
 
   return (
     <IonPage>

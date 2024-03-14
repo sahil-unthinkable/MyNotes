@@ -6,7 +6,7 @@ import * as entities from "../entities/note";
 const dbName = "MY_NOTES";
 
 const dataSourceConfig: DataSourceOptions = {
-  name: "authorConnection",
+  name: "noteConnection",
   type: "capacitor",
   driver: sqliteParams.connection,
   database: dbName,

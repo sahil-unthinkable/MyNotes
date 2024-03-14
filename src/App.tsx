@@ -1,8 +1,5 @@
 import {
   IonApp,
-  IonLoading,
-  IonNav,
-  IonRouterOutlet,
   IonSpinner,
   setupIonicReact,
 } from "@ionic/react";
@@ -10,8 +7,6 @@ import {
 import { JeepSqlite } from "jeep-sqlite/dist/components/jeep-sqlite";
 import sqliteParams from "./db/sqliteParams";
 import noteDataSource from "./db/datasources/noteDataSource";
-import { getCountOfElements } from "./db/utilities";
-import { Note } from "./db/entities/note";
 import Notes from "./pages/notes";
 import { useEffect, useState } from "react";
 import { IonReactRouter } from "@ionic/react-router";
