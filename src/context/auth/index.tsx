@@ -1,6 +1,6 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { Preferences } from "@capacitor/preferences";
-import { AuthContextType, User } from "../../types";
+import { AuthContextType, User } from "../../lib/types";
 import { userKey } from "../../lib/constants";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
