@@ -15,7 +15,7 @@ import { useAuth } from "../../context/auth";
 
 const SignIn: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
   const [name, setName] = useState<string>("");
-  const { user, updateUser } = useAuth();
+  const { user, login } = useAuth();
 
   const handleInputChange = (e: Event) => {
     setName((e.target as HTMLInputElement).value);
@@ -23,7 +23,7 @@ const SignIn: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
 
   const handleLogin = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    updateUser({ name });
+    login({ name });
     props.history.replace("/");
   };
 

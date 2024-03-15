@@ -4,5 +4,6 @@ export type User = {
 
 export type AuthContextType = {
   user?: User;
-  updateUser: (user: User) => void;
+  login: (user: User) => void;
+  logout: () => void;
 };

@@ -14,7 +14,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 }: AuthProviderProps) => {
   const [user, setUser] = useState<User | undefined>(undefined);
 
-  const updateUser = async (user: User) => {
+  const login = async (user: User) => {
     if (user.name === "") {
       return;
     }
@@ -30,6 +30,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }
   };
 
+  const logout = async () => {
+    try {
+      await Preferences.remove({
+        key: userKey,
+      });
+      setUser(undefined);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     (async () => {
       const res = await Preferences.get({ key: userKey });
@@ -38,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, updateUser }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
