@@ -1,17 +1,14 @@
-import {
-  IonApp,
-  IonSpinner,
-  setupIonicReact,
-} from "@ionic/react";
-
+import { useEffect, useState } from "react";
+import { IonReactRouter } from "@ionic/react-router";
+import { Redirect, Route, RouteProps } from "react-router";
+import { IonApp, IonSpinner, setupIonicReact } from "@ionic/react";
 import { JeepSqlite } from "jeep-sqlite/dist/components/jeep-sqlite";
 import sqliteParams from "./db/sqliteParams";
 import noteDataSource from "./db/datasources/noteDataSource";
 import Notes from "./pages/notes";
-import { useEffect, useState } from "react";
-import { IonReactRouter } from "@ionic/react-router";
-import { Route } from "react-router";
 import AddEditNote from "./pages/addEditNote";
+import SignIn from "./pages/signIn";
+import { useAuth } from "./context/auth";
 
 customElements.define("jeep-sqlite", JeepSqlite);
 
@@ -37,6 +34,35 @@ const initializeDataSources = async () => {
 };
 
 setupIonicReact();
+
+const PrivateRoute: React.FC<RouteProps> = ({
+  component: Component,
+  ...rest
+}: RouteProps) => {
+  if (!Component) {
+    return null;
+  }
+
+  const { user } = useAuth();
+
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        user ? (
+          <Component {...props} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: "/signin",
+              state: { from: props.location },
+            }}
+          />
+        )
+      }
+    />
+  );
+};
 
 const App: React.FC = () => {
   const [dbInitialized, setDbInitialized] = useState(false);
@@ -73,9 +99,13 @@ const App: React.FC = () => {
   return (
     <IonApp>
       <IonReactRouter>
-        <Route exact path="/" component={Notes} />
-        <Route path="/note" component={AddEditNote} />
-        <Route path="/note/:id" component={AddEditNote} />
+        <PrivateRoute exact path="/" component={Notes} />
+        <PrivateRoute exact path="/note" component={AddEditNote} />
+        <PrivateRoute exact path="/note/:id" component={AddEditNote} />
+        <Route exact path="/signin" component={SignIn} />
+
+        {/* Fallback route for redirecting to home */}
+        <Route path="*" render={() => <Redirect to="/" />} />
       </IonReactRouter>
     </IonApp>
   );

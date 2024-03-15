@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { RouteComponentProps } from "react-router";
 import {
   IonHeader,
   IonContent,
@@ -8,14 +9,13 @@ import {
   IonBackButton,
   IonTextarea,
   IonButton,
-  IonNav,
   IonPage,
 } from "@ionic/react";
 import { addNewNote } from "../../db/utilities";
 
-type Props = {};
-
-function AddEditNote(props: any) {
+const AddEditNote: React.FC<RouteComponentProps> = (
+  props: RouteComponentProps
+) => {
   const [note, setNote] = useState<string>("");
 
   const handleInputChange = (e: Event) => {
@@ -24,12 +24,9 @@ function AddEditNote(props: any) {
 
   const handleFormSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    console.log(note);
     await addNewNote(note);
     props.history.goBack();
   };
-
-  console.log(props);
 
   return (
     <IonPage>
@@ -61,6 +58,6 @@ function AddEditNote(props: any) {
       </IonContent>
     </IonPage>
   );
-}
+};
 
 export default AddEditNote;

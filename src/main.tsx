@@ -22,11 +22,12 @@ import "@ionic/react/css/display.css";
 import "./theme/variables.css";
 
 import App from "./App";
+import { AuthProvider } from "./context/auth";
 
 const container = document.getElementById("root");
 const root = createRoot(container!);
 root.render(
-  <React.StrictMode>
+  <AuthProvider>
     <App />
-  </React.StrictMode>
+  </AuthProvider>
 );

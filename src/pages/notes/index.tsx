@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { RouteComponentProps } from "react-router";
 import {
   IonButton,
   IonHeader,
@@ -9,14 +10,29 @@ import {
   IonItem,
   IonLabel,
   IonPage,
+  IonImg,
 } from "@ionic/react";
 import { getNotes } from "../../db/utilities";
 import { Note } from "../../db/entities/note";
+import { Camera, CameraResultType } from "@capacitor/camera";
 
-type Props = {};
-
-function Notes(props: Props) {
+const Notes: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
   const [notes, setNotes] = useState<Note[]>([]);
+
+  const imageRef = useRef<HTMLIonImgElement>(null);
+
+  const takePicture = async () => {
+    const image = await Camera.getPhoto({
+      quality: 100,
+      allowEditing: false,
+      resultType: CameraResultType.Uri,
+    });
+    const imageUrl = image.webPath;
+    if (imageRef.current) {
+      imageRef.current.src = imageUrl;
+    }
+  };
+
   useEffect(() => {
     (async () => {
       const notesData = await getNotes();
@@ -33,6 +49,8 @@ function Notes(props: Props) {
       </IonHeader>
       <IonContent class="ion-padding">
         <IonButton routerLink="/note">Add Note</IonButton>
+        <IonButton onClick={takePicture}>Take photo</IonButton>
+        <IonImg ref={imageRef}></IonImg>
         <IonList>
           {notes.map((note) => {
             return (
@@ -45,6 +63,6 @@ function Notes(props: Props) {
       </IonContent>
     </IonPage>
   );
-}
+};
 
 export default Notes;
